@@ -35,6 +35,7 @@ namespace SWGSurvivors_Patcher
         private ProgressBar fileProgressBar = null!;
         private RichTextBox logTextBox = null!;
         private Button startButton = null!;
+        private Button launchGameButton = null!;
         private Button closeButton = null!;
         private PictureBox logoPictureBox = null!;
 
@@ -173,12 +174,17 @@ namespace SWGSurvivors_Patcher
             this.Controls.Add(logTextBox);
             yPos += 250;
 
-            // Buttons
+            // Buttons (3 buttons, centered)
+            int buttonWidth = 140;
+            int buttonSpacing = 15;
+            int totalWidth = (buttonWidth * 3) + (buttonSpacing * 2);
+            int startX = (750 - totalWidth) / 2;
+
             startButton = new Button
             {
                 Text = "Start Patching",
-                Size = new Size(150, 40),
-                Location = new Point(200, yPos),
+                Size = new Size(buttonWidth, 40),
+                Location = new Point(startX, yPos),
                 Font = new Font("Arial", 10, FontStyle.Bold),
                 BackColor = Color.FromArgb(76, 175, 80),
                 ForeColor = Color.White,
@@ -187,11 +193,29 @@ namespace SWGSurvivors_Patcher
             startButton.Click += StartButton_Click;
             this.Controls.Add(startButton);
 
+            // Launch Game button
+            var gameExePath = Path.Combine(workingDirectory, "SWGEmu.exe");
+            bool gameExists = File.Exists(gameExePath);
+
+            launchGameButton = new Button
+            {
+                Text = gameExists ? "Launch Game" : "Game not found",
+                Size = new Size(buttonWidth, 40),
+                Location = new Point(startX + buttonWidth + buttonSpacing, yPos),
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                BackColor = Color.FromArgb(33, 150, 243),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Enabled = gameExists
+            };
+            launchGameButton.Click += LaunchGameButton_Click;
+            this.Controls.Add(launchGameButton);
+
             closeButton = new Button
             {
                 Text = "Close",
-                Size = new Size(150, 40),
-                Location = new Point(380, yPos),
+                Size = new Size(buttonWidth, 40),
+                Location = new Point(startX + (buttonWidth + buttonSpacing) * 2, yPos),
                 Font = new Font("Arial", 10, FontStyle.Bold),
                 BackColor = Color.FromArgb(244, 67, 54),
                 ForeColor = Color.White,
@@ -202,10 +226,42 @@ namespace SWGSurvivors_Patcher
             this.Controls.Add(closeButton);
         }
 
+        private void LaunchGameButton_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                var gameExePath = Path.Combine(workingDirectory, "SWGEmu.exe");
+
+                if (File.Exists(gameExePath))
+                {
+                    Log("Launching SWGEmu.exe...");
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = gameExePath,
+                        UseShellExecute = true,
+                        WorkingDirectory = workingDirectory
+                    });
+                    Log("Game launched successfully - closing patcher", LogLevel.Success);
+
+                    // Close the patcher after launching the game
+                    this.Close();
+                }
+                else
+                {
+                    Log("SWGEmu.exe not found in current directory", LogLevel.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Failed to launch game: {ex.Message}", LogLevel.Error);
+            }
+        }
+
         private async void StartButton_Click(object? sender, EventArgs e)
         {
-            // Disable both buttons during patching
+            // Disable all buttons during patching
             startButton.Enabled = false;
+            launchGameButton.Enabled = false;
             closeButton.Enabled = false;
 
             // Reset statistics for new run
@@ -229,9 +285,16 @@ namespace SWGSurvivors_Patcher
 
             await RunPatching();
 
-            // Re-enable both buttons after patching
+            // Re-enable all buttons after patching
             startButton.Enabled = true;
             closeButton.Enabled = true;
+
+            // Re-enable launch button only if game exists
+            var gameExePath = Path.Combine(workingDirectory, "SWGEmu.exe");
+            if (File.Exists(gameExePath))
+            {
+                launchGameButton.Enabled = true;
+            }
         }
 
         private async Task RunPatching()
