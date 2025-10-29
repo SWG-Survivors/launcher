@@ -8,7 +8,8 @@
     "build": "dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish",
     "clean": "if exist bin rmdir /s /q bin && if exist obj rmdir /s /q obj && if exist publish rmdir /s /q publish",
     "test": "dotnet run",
-    "move": "copy /Y publish\\SWGSurvivors-Patcher.exe \"D:\\Program Files (x86)\\SWGEmu\\SWGSurvivors\\SWGSurvivors-Patcher.exe\""
+    "move": "copy /Y publish\\SWGSurvivors-Patcher.exe \"D:\\Program Files (x86)\\SWGEmu\\SWGSurvivors\\SWGSurvivors-Patcher.exe\"",
+    "checksum": "certutil -hashfile publish\\SWGSurvivors-Patcher.exe SHA256"
   },
   "keywords": [
     "patcher",
