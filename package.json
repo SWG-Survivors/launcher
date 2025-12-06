@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "C# version of SWGSurvivors Delta Patcher",
   "scripts": {
-    "build:deploy": "npm run clean && npm run build && npm run move",
-    "rebuild": "npm run clean && npm run build",
+    "build and deploy": "npm run clean && npm run build && npm run move",
+    "create github version tag": "node -e \"const readline = require('readline').createInterface({input: process.stdin, output: process.stdout}); readline.question('Enter tag (e.g., v0.2.1): ', tag => { if (!tag) { console.error('Tag required'); process.exit(1); } require('child_process').execSync(`git tag ${tag} && git push origin main && git push origin ${tag}`, {stdio: 'inherit'}); readline.close(); })\"",
+    "-": "",
     "build": "dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish",
     "clean": "if exist bin rmdir /s /q bin && if exist obj rmdir /s /q obj && if exist publish rmdir /s /q publish",
+    "rebuild": "npm run clean && npm run build",
     "test": "dotnet run",
     "move": "copy /Y publish\\SWGSurvivors-Patcher.exe \"D:\\Program Files (x86)\\SWGEmu\\SWGSurvivors\\SWGSurvivors-Patcher.exe\"",
     "checksum": "certutil -hashfile publish\\SWGSurvivors-Patcher.exe SHA256"
