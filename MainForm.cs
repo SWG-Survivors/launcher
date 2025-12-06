@@ -304,23 +304,25 @@ namespace SWGSurvivors_Patcher
             int totalWidth = (buttonWidth * 3) + (buttonSpacing * 2);
             int startX = (750 - totalWidth) / 2;
 
+            // Check if game directory exists (prevents patching in wrong location)
+            var gameExePath = Path.Combine(workingDirectory, "SWGEmu.exe");
+            bool gameExists = File.Exists(gameExePath);
+
             startButton = new Button
             {
-                Text = "Start Patching",
+                Text = gameExists ? "Start Patching" : "Game not found",
                 Size = new Size(buttonWidth, 40),
                 Location = new Point(startX, yPos),
                 Font = new Font("Arial", 10, FontStyle.Bold),
                 BackColor = Color.FromArgb(76, 175, 80),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Enabled = gameExists
             };
             startButton.Click += StartButton_Click;
             this.Controls.Add(startButton);
 
             // Launch Game button
-            var gameExePath = Path.Combine(workingDirectory, "SWGEmu.exe");
-            bool gameExists = File.Exists(gameExePath);
-
             launchGameButton = new Button
             {
                 Text = gameExists ? "Launch Game" : "Game not found",

@@ -8,11 +8,12 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>swgs.ico</ApplicationIcon>
     <AssemblyName>SWGSurvivors-Patcher</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>0.2.0</Version>
+    <!-- FileVersion and AssemblyVersion will auto-generate -->
     <Authors>Quandru</Authors>
     <Company>SWGSurvivors</Company>
     <Product>SWGSurvivors Delta Patcher</Product>
-    <Description>Lightweight delta patcher for SWGSurvivors</Description>
+    <Description>Lightweight delta patcher for SWGSurvivors with self-update capability</Description>
   </PropertyGroup>
 
   <ItemGroup>
