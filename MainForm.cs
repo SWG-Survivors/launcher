@@ -15,6 +15,7 @@ namespace SWGSurvivors_Patcher
     public partial class MainForm : Form
     {
         private const string MANIFEST_URL = "http://fileserver.swgsurvivors.com/swgs/updates/manifest.json";
+        private const string STATUS_URL = "http://fileserver.swgsurvivors.com/status/server_status.php";
         private readonly string workingDirectory;
         private readonly HttpClient httpClient;
 
@@ -29,6 +30,11 @@ namespace SWGSurvivors_Patcher
         // UI Controls
         private Label titleLabel = null!;
         private Label statusLabel = null!;
+        private Label activeServerLabel = null!;
+        private Label serverStatusLabel = null!;
+        private Label serverUptimeLabel = null!;
+        private Label playerOnlineLabel = null!;
+        private Label playerPeakLabel = null!;
         private Label overallProgressLabel = null!;
         private ProgressBar overallProgressBar = null!;
         private Label fileProgressLabel = null!;
@@ -48,12 +54,13 @@ namespace SWGSurvivors_Patcher
             httpClient.Timeout = TimeSpan.FromMinutes(10);
 
             InitializeComponent();
+            LoadServerStatus();
         }
 
         private void InitializeComponent()
         {
             this.Text = "SWGSurvivors Delta Patcher";
-            this.Size = new Size(750, 565);
+            this.Size = new Size(750, 600);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -96,24 +103,141 @@ namespace SWGSurvivors_Patcher
                 // Logo couldn't load - continue without it
             }
 
-            yPos += 40;
+            yPos += 45;
 
-            // Status Label
-            statusLabel = new Label
+            // Server status information bar - First line
+            int statusBarY = yPos;
+            int xOffset = 20;
+
+            // ACTIVE SERVER
+            Label activeServerTitle = new Label
             {
-                Text = "Ready to patch",
+                Text = "Active Server:",
                 Font = new Font("Arial", 10),
                 AutoSize = true,
-                Location = new Point(20, yPos)
+                Location = new Point(xOffset, statusBarY),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
             };
-            this.Controls.Add(statusLabel);
-            yPos += 30;
+            this.Controls.Add(activeServerTitle);
+
+            activeServerLabel = new Label
+            {
+                Text = "LOADING",
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(activeServerTitle.Right + 5, statusBarY),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(activeServerLabel);
+            xOffset = activeServerLabel.Right + 75;
+
+            // STATUS
+            Label statusTitle = new Label
+            {
+                Text = "Status:",
+                Font = new Font("Arial", 10),
+                AutoSize = true,
+                Location = new Point(xOffset, statusBarY),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(statusTitle);
+
+            serverStatusLabel = new Label
+            {
+                Text = "LOADING",
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(statusTitle.Right + 5, statusBarY),
+                ForeColor = Color.Gray,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(serverStatusLabel);
+            xOffset = serverStatusLabel.Right + 25;
+
+            // UPTIME
+            Label uptimeTitle = new Label
+            {
+                Text = "Uptime:",
+                Font = new Font("Arial", 10),
+                AutoSize = true,
+                Location = new Point(xOffset, statusBarY),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(uptimeTitle);
+
+            serverUptimeLabel = new Label
+            {
+                Text = "0",
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(uptimeTitle.Right + 5, statusBarY),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(serverUptimeLabel);
+
+            // Second line for ONLINE and PEAK
+            yPos += 20;
+            xOffset = 20;
+
+            // ONLINE
+            Label onlineTitle = new Label
+            {
+                Text = "Online:",
+                Font = new Font("Arial", 10),
+                AutoSize = true,
+                Location = new Point(xOffset, yPos),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(onlineTitle);
+
+            playerOnlineLabel = new Label
+            {
+                Text = "0",
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(onlineTitle.Right + 5, yPos),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(playerOnlineLabel);
+            xOffset = playerOnlineLabel.Right + 30;
+
+            // PEAK
+            Label peakTitle = new Label
+            {
+                Text = "Peak:",
+                Font = new Font("Arial", 10),
+                AutoSize = true,
+                Location = new Point(xOffset, yPos),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(peakTitle);
+
+            playerPeakLabel = new Label
+            {
+                Text = "0",
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(peakTitle.Right + 5, yPos),
+                ForeColor = Color.Black,
+                BackColor = Color.Transparent
+            };
+            this.Controls.Add(playerPeakLabel);
+
+            yPos += 40;
 
             // Overall Progress Label
             overallProgressLabel = new Label
             {
                 Text = "Overall Progress: 0%",
-                Font = new Font("Arial", 9),
+                Font = new Font("Arial", 10),
                 AutoSize = true,
                 Location = new Point(20, yPos)
             };
@@ -134,7 +258,7 @@ namespace SWGSurvivors_Patcher
             fileProgressLabel = new Label
             {
                 Text = "File Progress: 0%",
-                Font = new Font("Arial", 9),
+                Font = new Font("Arial", 10),
                 AutoSize = true,
                 Location = new Point(20, yPos)
             };
@@ -224,6 +348,71 @@ namespace SWGSurvivors_Patcher
             };
             closeButton.Click += (s, e) => this.Close();
             this.Controls.Add(closeButton);
+        }
+
+        private async void LoadServerStatus()
+        {
+            try
+            {
+                var json = await httpClient.GetStringAsync(STATUS_URL);
+                var serverStatus = JsonSerializer.Deserialize<ServerStatus>(json);
+
+                if (serverStatus != null)
+                {
+                    // Update Active Server name
+                    activeServerLabel.Text = serverStatus.name?.ToUpper() ?? "UNKNOWN";
+
+                    // Update Status
+                    serverStatusLabel.Text = serverStatus.status?.ToUpper() ?? "UNKNOWN";
+
+                    // Change color based on status
+                    if (serverStatus.status?.ToLower() == "online")
+                    {
+                        serverStatusLabel.ForeColor = Color.White;
+                        serverStatusLabel.BackColor = Color.Green;
+                    }
+                    else if (serverStatus.status?.ToLower() == "offline")
+                    {
+                        serverStatusLabel.ForeColor = Color.White;
+                        serverStatusLabel.BackColor = Color.Red;
+                    }
+                    else
+                    {
+                        serverStatusLabel.ForeColor = Color.White;
+                        serverStatusLabel.BackColor = Color.Orange;
+                    }
+
+                    // Update Uptime (convert seconds to readable format)
+                    if (!string.IsNullOrEmpty(serverStatus.uptime) && long.TryParse(serverStatus.uptime, out long uptimeSeconds))
+                    {
+                        TimeSpan uptime = TimeSpan.FromSeconds(uptimeSeconds);
+                        serverUptimeLabel.Text = $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m";
+                    }
+                    else
+                    {
+                        serverUptimeLabel.Text = serverStatus.uptime ?? "0";
+                    }
+
+                    // Update Online players
+                    playerOnlineLabel.Text = serverStatus.connected ?? "0";
+
+                    // Update Peak players
+                    playerPeakLabel.Text = serverStatus.max ?? "0";
+                }
+                else
+                {
+                    activeServerLabel.Text = "ERROR";
+                    serverStatusLabel.Text = "PARSE ERROR";
+                    serverStatusLabel.ForeColor = Color.Red;
+                }
+            }
+            catch (Exception ex)
+            {
+                activeServerLabel.Text = "ERROR";
+                serverStatusLabel.Text = "LOAD ERROR";
+                serverStatusLabel.ForeColor = Color.Red;
+                Log($"Failed to load server status: {ex.Message}", LogLevel.Error);
+            }
         }
 
         private void LaunchGameButton_Click(object? sender, EventArgs e)
@@ -705,5 +894,18 @@ namespace SWGSurvivors_Patcher
         Success,
         Warning,
         Error
+    }
+
+    // Server status data model
+    public class ServerStatus
+    {
+        public string? name { get; set; }
+        public string? status { get; set; }
+        public string? date { get; set; }
+        public string? uptime { get; set; }
+        public string? connected { get; set; }
+        public string? max { get; set; }
+        public string? total { get; set; }
+        public string? deleted { get; set; }
     }
 }
