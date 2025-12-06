@@ -18,7 +18,7 @@ namespace SWGSurvivors_Patcher
         private void InitializeComponent()
         {
             this.Text = "SWGSurvivors Launcher Update";
-            this.Size = new Size(500, 200);
+            this.ClientSize = new Size(500, 200);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -26,6 +26,8 @@ namespace SWGSurvivors_Patcher
             this.ControlBox = true; // Allow close button to terminate if stuck
 
             int yPos = 20;
+            int margin = 20;
+            int controlWidth = this.ClientSize.Width - (margin * 2);
 
             // Title
             Label titleLabel = new Label
@@ -33,7 +35,7 @@ namespace SWGSurvivors_Patcher
                 Text = "Launcher Update",
                 Font = new Font("Arial", 14, FontStyle.Bold),
                 AutoSize = true,
-                Location = new Point(20, yPos)
+                Location = new Point(margin, yPos)
             };
             this.Controls.Add(titleLabel);
             yPos += 40;
@@ -44,8 +46,8 @@ namespace SWGSurvivors_Patcher
                 Text = "Checking for updates...",
                 Font = new Font("Arial", 10),
                 AutoSize = false,
-                Size = new Size(460, 20),
-                Location = new Point(20, yPos)
+                Size = new Size(controlWidth, 20),
+                Location = new Point(margin, yPos)
             };
             this.Controls.Add(versionLabel);
             yPos += 30;
@@ -56,8 +58,8 @@ namespace SWGSurvivors_Patcher
                 Text = "Connecting to GitHub...",
                 Font = new Font("Arial", 9),
                 AutoSize = false,
-                Size = new Size(460, 20),
-                Location = new Point(20, yPos),
+                Size = new Size(controlWidth, 20),
+                Location = new Point(margin, yPos),
                 ForeColor = Color.DarkGray
             };
             this.Controls.Add(statusLabel);
@@ -66,8 +68,8 @@ namespace SWGSurvivors_Patcher
             // Progress bar
             progressBar = new ProgressBar
             {
-                Location = new Point(20, yPos),
-                Size = new Size(460, 25),
+                Location = new Point(margin, yPos),
+                Size = new Size(controlWidth, 25),
                 Style = ProgressBarStyle.Continuous,
                 Minimum = 0,
                 Maximum = 100,

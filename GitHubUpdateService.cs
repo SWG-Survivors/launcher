@@ -12,7 +12,7 @@ namespace SWGSurvivors_Patcher
     {
         private const string GITHUB_REPO_OWNER = "SWG-Survivors";
         private const string GITHUB_REPO_NAME = "launcher";
-        private const string LAUNCHER_ASSET_NAME = "SWGSurvivors-Patcher.exe";
+        public const string LAUNCHER_ASSET_NAME = "SWGSurvivors-Patcher.exe";  // TODO: Change to "SWGSurvivors-Launcher.exe" after migration period
 
         private readonly HttpClient httpClient;
 

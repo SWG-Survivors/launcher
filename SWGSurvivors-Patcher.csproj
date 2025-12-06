@@ -7,13 +7,13 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ApplicationIcon>swgs.ico</ApplicationIcon>
-    <AssemblyName>SWGSurvivors-Patcher</AssemblyName>
-    <Version>0.2.3</Version>
+    <AssemblyName>SWGSurvivors-Launcher</AssemblyName>
+    <Version>0.2.4</Version>
     <!-- FileVersion and AssemblyVersion will auto-generate -->
     <Authors>Quandru</Authors>
     <Company>SWGSurvivors</Company>
     <Product>SWGSurvivors Delta Patcher</Product>
-    <Description>Lightweight delta patcher for SWGSurvivors with self-update capability</Description>
+    <Description>Lightweight launcher and manifest-based differential patcher with self-update capability for the SWGSurvivors SWGEmu server.</Description>
   </PropertyGroup>
 
   <ItemGroup>

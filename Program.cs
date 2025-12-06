@@ -146,7 +146,8 @@ namespace SWGSurvivors_Patcher
                     updateForm.SetProgress(0);
 
                     var currentExe = Application.ExecutablePath;
-                    var newExe = currentExe + ".new";
+                    var currentDir = Path.GetDirectoryName(currentExe) ?? AppContext.BaseDirectory;
+                    var newExe = Path.Combine(currentDir, GitHubUpdateService.LAUNCHER_ASSET_NAME + ".new");
 
                     var progress = new Progress<int>(percent =>
                     {
@@ -187,17 +188,20 @@ namespace SWGSurvivors_Patcher
         {
             var batchPath = Path.Combine(Path.GetTempPath(), $"swgs-update-{Guid.NewGuid():N}.bat");
 
+            // The new launcher name (without .new extension)
+            var newLauncherPath = newExe.Replace(".new", "");
+
             // Create batch script to:
             // 1. Wait for current process to exit
-            // 2. Delete old launcher
-            // 3. Rename .new to original name
+            // 2. Delete old launcher (might be different name)
+            // 3. Rename .new to new launcher name
             // 4. Start updated launcher
             // 5. Delete itself
             var batchContent = $@"@echo off
 timeout /t 2 /nobreak >nul
 del ""{currentExe}""
-move /y ""{newExe}"" ""{currentExe}""
-start """" ""{currentExe}""
+move /y ""{newExe}"" ""{newLauncherPath}""
+start """" ""{newLauncherPath}""
 del ""%~f0""
 ";
 

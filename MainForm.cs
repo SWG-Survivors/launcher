@@ -18,6 +18,7 @@ namespace SWGSurvivors_Patcher
         private const string STATUS_URL = "http://fileserver.swgsurvivors.com/status/server_status.php";
         private readonly string workingDirectory;
         private readonly HttpClient httpClient;
+        private LauncherSettings settings;
 
         // Statistics
         private int filesVerified = 0;
@@ -44,6 +45,7 @@ namespace SWGSurvivors_Patcher
         private Button launchGameButton = null!;
         private Button closeButton = null!;
         private PictureBox logoPictureBox = null!;
+        private Button settingsButton = null!;
 
         public MainForm()
         {
@@ -52,6 +54,9 @@ namespace SWGSurvivors_Patcher
 
             httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromMinutes(10);
+
+            // Load settings
+            settings = LauncherSettings.Load();
 
             InitializeComponent();
             LoadServerStatus();
@@ -366,6 +371,26 @@ namespace SWGSurvivors_Patcher
             };
             closeButton.Click += (s, e) => this.Close();
             this.Controls.Add(closeButton);
+
+            // Settings button (bottom right corner)
+            settingsButton = new Button
+            {
+                Text = "\u2699",  // Gear/cog emoji
+                Size = new Size(40, 40),
+                Location = new Point(this.ClientSize.Width - 60, yPos - 2),  // Adjust up by 2px for visual alignment
+                Font = new Font("Arial", 24),
+                BackColor = Color.Transparent,
+                ForeColor = Color.FromArgb(100, 100, 100),
+                FlatStyle = FlatStyle.Flat,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Cursor = Cursors.Hand,
+                Enabled = true
+            };
+            settingsButton.FlatAppearance.BorderSize = 0;
+            settingsButton.FlatAppearance.MouseOverBackColor = Color.Transparent;
+            settingsButton.FlatAppearance.MouseDownBackColor = Color.Transparent;
+            settingsButton.Click += SettingsButton_Click;
+            this.Controls.Add(settingsButton);
         }
 
         private async void LoadServerStatus()
@@ -430,6 +455,13 @@ namespace SWGSurvivors_Patcher
                 serverStatusLabel.Text = "LOAD ERROR";
                 serverStatusLabel.ForeColor = Color.Red;
                 Log($"Failed to load server status: {ex.Message}", LogLevel.Error);
+            }
+
+            // Auto-patch on startup if enabled
+            if (settings.PatchAutomaticallyOnStartup && startButton.Enabled)
+            {
+                Log("Auto-patch enabled - starting patching automatically...");
+                StartButton_Click(null, EventArgs.Empty);
             }
         }
 
@@ -871,6 +903,19 @@ namespace SWGSurvivors_Patcher
             logTextBox.SelectionColor = logTextBox.ForeColor;
             logTextBox.ScrollToCaret();
             Application.DoEvents();
+        }
+
+        private void SettingsButton_Click(object? sender, EventArgs e)
+        {
+            var settingsForm = new SettingsForm(settings);
+            var result = settingsForm.ShowDialog(this);
+
+            if (result == DialogResult.OK)
+            {
+                // Reload settings from the saved file
+                settings = LauncherSettings.Load();
+                Log("Settings saved successfully", LogLevel.Success);
+            }
         }
 
         protected override void Dispose(bool disposing)
