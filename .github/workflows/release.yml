@@ -18,8 +18,25 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Build Release
+      - name: Build Release (Unsigned)
         run: dotnet publish SWGSurvivors-Patcher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o ./publish
+
+      - name: Sign with SignPath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: 'SWGSurvivorsLauncher'
+          signing-policy-slug: 'release-signing'
+          artifact-configuration-slug: 'default'
+          input-artifact-path: ./publish/SWGSurvivors-Patcher.exe
+          output-artifact-path: ./publish/SWGSurvivors-Patcher-signed.exe
+          wait-for-completion: true
+
+      - name: Rename signed executable
+        run: |
+          Remove-Item ./publish/SWGSurvivors-Patcher.exe -Force
+          Rename-Item ./publish/SWGSurvivors-Patcher-signed.exe SWGSurvivors-Patcher.exe
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
