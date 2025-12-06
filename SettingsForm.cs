@@ -23,7 +23,7 @@ namespace SWGSurvivors_Patcher
         private void InitializeComponent()
         {
             this.Text = "Launcher Settings";
-            this.Size = new Size(400, 200);
+            this.Size = new Size(400, 230);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -42,23 +42,10 @@ namespace SWGSurvivors_Patcher
             this.Controls.Add(titleLabel);
             yPos += 40;
 
-            // Auto-patch checkbox
-            autoPatchCheckBox = new CheckBox
-            {
-                Text = "Automatically patch on startup",
-                Font = new Font("Arial", 10),
-                AutoSize = true,
-                Location = new Point(20, yPos),
-                Checked = settings.PatchAutomaticallyOnStartup
-            };
-            autoPatchCheckBox.CheckedChanged += (s, e) => settingsChanged = true;
-            this.Controls.Add(autoPatchCheckBox);
-            yPos += 30;
-
             // Auto-restart launcher checkbox
             autoRestartLauncherCheckBox = new CheckBox
             {
-                Text = "Automatically apply launcher updates without prompting",
+                Text = "Automatically apply launcher updates",
                 Font = new Font("Arial", 10),
                 AutoSize = true,
                 Location = new Point(20, yPos),
@@ -66,6 +53,19 @@ namespace SWGSurvivors_Patcher
             };
             autoRestartLauncherCheckBox.CheckedChanged += (s, e) => settingsChanged = true;
             this.Controls.Add(autoRestartLauncherCheckBox);
+            yPos += 30;
+
+            // Auto-patch checkbox
+            autoPatchCheckBox = new CheckBox
+            {
+                Text = "Automatically patch game on start-up",
+                Font = new Font("Arial", 10),
+                AutoSize = true,
+                Location = new Point(20, yPos),
+                Checked = settings.PatchAutomaticallyOnStartup
+            };
+            autoPatchCheckBox.CheckedChanged += (s, e) => settingsChanged = true;
+            this.Controls.Add(autoPatchCheckBox);
             yPos += 50;
 
             // Buttons
