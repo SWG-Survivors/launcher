@@ -11,6 +11,7 @@ namespace SWGSurvivors_Patcher
 
         // Settings properties
         public bool PatchAutomaticallyOnStartup { get; set; } = false;
+        public bool AutoApplyAndRestartLauncherPatches { get; set; } = false;
 
         /// <summary>
         /// Loads settings from the JSON config file. If the file doesn't exist, returns default settings.
@@ -63,7 +64,8 @@ namespace SWGSurvivors_Patcher
         {
             return new LauncherSettings
             {
-                PatchAutomaticallyOnStartup = this.PatchAutomaticallyOnStartup
+                PatchAutomaticallyOnStartup = this.PatchAutomaticallyOnStartup,
+                AutoApplyAndRestartLauncherPatches = this.AutoApplyAndRestartLauncherPatches
             };
         }
     }

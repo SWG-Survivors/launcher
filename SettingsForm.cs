@@ -7,6 +7,7 @@ namespace SWGSurvivors_Patcher
     public partial class SettingsForm : Form
     {
         private CheckBox autoPatchCheckBox = null!;
+        private CheckBox autoRestartLauncherCheckBox = null!;
         private Button okButton = null!;
         private Button cancelButton = null!;
 
@@ -52,6 +53,19 @@ namespace SWGSurvivors_Patcher
             };
             autoPatchCheckBox.CheckedChanged += (s, e) => settingsChanged = true;
             this.Controls.Add(autoPatchCheckBox);
+            yPos += 30;
+
+            // Auto-restart launcher checkbox
+            autoRestartLauncherCheckBox = new CheckBox
+            {
+                Text = "Automatically apply launcher updates without prompting",
+                Font = new Font("Arial", 10),
+                AutoSize = true,
+                Location = new Point(20, yPos),
+                Checked = settings.AutoApplyAndRestartLauncherPatches
+            };
+            autoRestartLauncherCheckBox.CheckedChanged += (s, e) => settingsChanged = true;
+            this.Controls.Add(autoRestartLauncherCheckBox);
             yPos += 50;
 
             // Buttons
@@ -98,6 +112,7 @@ namespace SWGSurvivors_Patcher
             {
                 // Update settings from UI
                 settings.PatchAutomaticallyOnStartup = autoPatchCheckBox.Checked;
+                settings.AutoApplyAndRestartLauncherPatches = autoRestartLauncherCheckBox.Checked;
 
                 try
                 {

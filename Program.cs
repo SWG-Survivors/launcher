@@ -123,19 +123,27 @@ namespace SWGSurvivors_Patcher
                         return false;
                     }
 
-                    // Update available - close form and prompt user
+                    // Update available - check if auto-apply is enabled
                     updateForm.Close();
 
-                    var result = MessageBox.Show(
-                        $"A new launcher version is available!\n\nCurrent version: v{updateInfo.CurrentVersion}\nNew version: v{updateInfo.LatestVersion}\n\nWould you like to download and install the update now?\n\nThe launcher will restart after downloading.",
-                        "Update Available",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question);
+                    // Load settings to check auto-apply preference
+                    var settings = LauncherSettings.Load();
+                    bool shouldAutoRestart = settings.AutoApplyAndRestartLauncherPatches;
 
-                    if (result == DialogResult.No)
+                    if (!shouldAutoRestart)
                     {
-                        // User declined - continue with current version
-                        return false;
+                        // Prompt user for confirmation
+                        var result = MessageBox.Show(
+                            $"A new launcher version is available!\n\nCurrent version: v{updateInfo.CurrentVersion}\nNew version: v{updateInfo.LatestVersion}\n\nWould you like to download and install the update now?\n\nThe launcher will restart after downloading.",
+                            "Update Available",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question);
+
+                        if (result == DialogResult.No)
+                        {
+                            // User declined - continue with current version
+                            return false;
+                        }
                     }
 
                     // User accepted - show form again and download
