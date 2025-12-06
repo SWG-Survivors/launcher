@@ -75,7 +75,7 @@ namespace SWGSurvivors_Patcher
             // Title
             titleLabel = new Label
             {
-                Text = $"SWGSurvivors Delta Patcher",
+                Text = "SWGSurvivors Delta Patcher",
                 Font = new Font("Arial", 16, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, yPos)
