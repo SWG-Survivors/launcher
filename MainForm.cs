@@ -59,7 +59,12 @@ namespace SWGSurvivors_Patcher
 
         private void InitializeComponent()
         {
-            this.Text = "SWGSurvivors Delta Patcher";
+            // Get version from assembly
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var version = assembly.GetName().Version;
+            var versionString = version != null ? $"v{version.Major}.{version.Minor}.{version.Build}" : "";
+
+            this.Text = $"SWGSurvivors Delta Patcher {versionString}";
             this.Size = new Size(750, 600);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -70,7 +75,7 @@ namespace SWGSurvivors_Patcher
             // Title
             titleLabel = new Label
             {
-                Text = "SWGSurvivors Delta Patcher",
+                Text = $"SWGSurvivors Delta Patcher",
                 Font = new Font("Arial", 16, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(20, yPos)
@@ -80,7 +85,6 @@ namespace SWGSurvivors_Patcher
             // Logo (top right corner) - embedded resource
             try
             {
-                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
                 var resourceName = "SWGSurvivors_Patcher.logo.png";
                 using (var stream = assembly.GetManifestResourceStream(resourceName))
                 {
