@@ -1,17 +1,21 @@
-# SWGSurvivors Delta Patcher (C# Version)
+# SWGSurvivors Delta Patcher
 
-This is a C#/.NET rewrite of the Python patcher with significantly better antivirus detection rates.
+A self-updating launcher and delta patcher for SWGSurvivors built with C#/.NET 9.0.
 
 ## Features
 
-✅ Delta patching - only downloads missing/modified files
-✅ SHA-256 hash verification for file integrity
-✅ Locked file detection (warns if game is running)
-✅ Progress tracking with dual progress bars
-✅ Color-coded activity log
-✅ Multiple patch runs without restarting
-✅ Embedded logo (no external files needed)
-✅ Self-contained executable (~40 MB, includes .NET runtime)
+✅ **Self-updating** - Automatically checks GitHub for launcher updates on startup
+✅ **Delta patching** - Only downloads missing/modified game files
+✅ **SHA-256 verification** - Ensures file integrity
+✅ **Live server status** - Real-time player count and server uptime
+✅ **Smart validation** - Prevents patching in wrong directory
+✅ **Locked file detection** - Warns if game is running
+✅ **Dual progress bars** - Overall and per-file progress tracking
+✅ **Color-coded activity log** - Easy to read status updates
+✅ **Multiple patch runs** - No restart needed between patches
+✅ **Embedded resources** - Logo included, no external files
+✅ **Self-contained** - Includes .NET runtime (~40 MB)
+✅ **Dynamic versioning** - Version displayed in window title
 
 ## Why C# Version?
 
@@ -53,7 +57,9 @@ The executable will be in `publish/SWGSurvivors-Patcher.exe`
 - **`npm run rebuild`** - Clean and rebuild from scratch
 - **`npm run test`** - Run in development mode (no build required)
 - **`npm run move`** - Copy built .exe to game directory
-- **`npm run build:deploy`** - Build and deploy to game directory in one step
+- **`npm run "build and deploy"`** - Build and deploy to game directory in one step
+- **`npm run "create github version tag"`** - Interactively create and push version tag
+- **`npm run checksum`** - Generate SHA256 checksum of built executable
 
 ### Alternative Build Methods
 
@@ -67,49 +73,81 @@ build.bat
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o publish
 ```
 
+## Automated Releases
+
+The project uses GitHub Actions to automatically build and release the launcher when version tags are pushed.
+
+### Creating a Release
+
+1. **Update version** in `SWGSurvivors-Patcher.csproj`:
+   ```xml
+   <Version>0.2.1</Version>
+   ```
+
+2. **Commit and push** your changes:
+   ```bash
+   git add SWGSurvivors-Patcher.csproj
+   git commit -m "Bump version to 0.2.1"
+   git push origin main
+   ```
+
+3. **Create and push tag** (interactive):
+   ```bash
+   npm run "create github version tag"
+   # Enter: v0.2.1
+   ```
+
+4. **GitHub Actions automatically:**
+   - Builds the self-contained executable
+   - Creates a GitHub pre-release
+   - Attaches `SWGSurvivors-Patcher.exe` as a release asset
+   - Generates release notes from commits
+
+5. **Launcher auto-updates:**
+   - Users' launchers detect the new version
+   - Download and apply updates automatically (with user confirmation)
+
+### Manual Tag Creation
+
+```bash
+git tag v0.2.1
+git push origin main
+git push origin v0.2.1
+```
+
+### Release Workflow
+
+The [release workflow](.github/workflows/release.yml) triggers on tags matching `v*` and:
+- Runs on `windows-latest`
+- Installs .NET 9.0
+- Builds with same settings as `npm run build`
+- Creates pre-release with auto-generated notes
+
 ## Distribution
 
 ### For End Users
 
-Distribute only: **`publish/SWGSurvivors-Patcher.exe`** (~40 MB)
+Download from: [GitHub Releases](https://github.com/SWG-Survivors/launcher/releases/latest)
 
-This single file contains:
+The release contains a single file: **`SWGSurvivors-Patcher.exe`** (~40 MB)
+
+This file contains:
 - The patcher application
 - .NET 9.0 runtime (no installation required)
 - Embedded logo image
 - All resources
 
-**No additional files needed!**
+**No additional files or installation needed!**
 
 ### Browser Download Warnings
 
-Modern browsers may warn about unsigned executables. Options:
+Modern browsers may warn about unsigned executables.
 
-1. **Zip the file** (reduces warnings):
-   ```bash
-   cd publish
-   powershell Compress-Archive -Path SWGSurvivors-Patcher.exe -DestinationPath SWGSurvivors-Patcher.zip
-   ```
+Browser may show insecure/unsafe download warning (click "Keep" / "Download anyway" depending on browser)
 
-2. **Provide user instructions:**
-   - Chrome: Click "Keep" → "Keep anyway"
-   - Edge: Click "..." → "Keep"
-   - Windows SmartScreen: Click "More info" → "Run anyway"
+Windows may show SmartScreen security warnings or AV false positives (click "More info" → "Run anyway" or exclude from AV scan)
 
-3. **Code signing** (eliminates warnings, costs $100-400/year):
-   - Purchase certificate from DigiCert, Sectigo, or GlobalSign
-   - See "Code Signing" section below
-
-## Advantages Over Python Version
-
-| Feature | Python (PyInstaller) | C# (.NET) |
-|---------|---------------------|-----------|
-| AV Detection Rate | High (10-20 engines) | Very Low (0-3 engines) |
-| File Size | ~10 MB | ~40 MB |
-| Build Time | 30 seconds | 1-2 minutes |
-| Dependencies | None | None |
-| Performance | Good | Excellent |
-| Trust Level | Low (packed runtime) | High (Microsoft .NET) |
+This is normal for unsigned executables, the code is available to review or build locally and use is optional and for convenience until a full launcher is built. We are also actively pursuing options relating to code signing.
 
 ## Testing Before Distribution
 
@@ -132,17 +170,22 @@ This single file is completely self-contained and requires no installation.
 ### Project Structure
 
 ```
-csharp-version/
-├── SWGSurvivors-Patcher.csproj  # Project configuration
-├── Program.cs                    # Entry point
-├── MainForm.cs                   # Main UI and logic (~600 lines)
-├── package.json                  # npm scripts
-├── build.bat                     # Build script
-├── logo.png                      # Embedded logo (80x80 recommended)
-├── swgs.ico                      # Application icon
-├── README.md                     # This file
-├── .gitignore                    # Git ignore rules
-└── publish/                      # Build output (git ignored)
+launcher/
+├── .github/
+│   └── workflows/
+│       └── release.yml              # GitHub Actions release workflow
+├── SWGSurvivors-Patcher.csproj      # Project configuration
+├── Program.cs                        # Entry point & self-update logic
+├── MainForm.cs                       # Main UI and patcher logic
+├── GitHubUpdateService.cs            # GitHub API integration for updates
+├── UpdateForm.cs                     # Update progress UI
+├── package.json                      # npm scripts
+├── build.bat                         # Build script
+├── logo.png                          # Embedded logo
+├── swgs.ico                          # Application icon
+├── README.md                         # This file
+├── .gitignore                        # Git ignore rules
+└── publish/                          # Build output (git ignored)
     └── SWGSurvivors-Patcher.exe
 ```
 
@@ -216,9 +259,43 @@ Both versions have identical functionality. Choose based on your priorities:
 
 **Recommendation:** Use the **C# version** for distribution to users due to significantly lower antivirus false positives.
 
+## Self-Update Architecture
+
+The launcher implements a sophisticated self-update system:
+
+1. **Pre-launch Check**: On startup, checks GitHub Releases API for newer versions
+2. **User Confirmation**: Prompts user before downloading updates
+3. **Download**: Downloads new `.exe` as `.exe.new`
+4. **Batch Script Replacement**: Creates temporary batch script to:
+   - Wait for current process to exit
+   - Delete old executable
+   - Rename `.new` to original name
+   - Restart launcher
+   - Self-delete
+5. **Seamless Update**: User sees brief restart, no manual intervention
+
+### Update Safety Features
+
+- **5-second timeout**: Won't hang on network issues
+- **Version comparison**: Semantic versioning (Major.Minor.Build)
+- **Graceful fallback**: Continues with current version if update fails
+- **User control**: Always prompts before downloading
+- **Responsive UI**: Update form remains interactive during download
+
 ## Version History
 
-### v1.0.0
+### v0.2.1
+- Add dynamic version display in window title
+- Retrieve version from assembly metadata at runtime
+
+### v0.2.0
+- **Self-update capability** - Automatic updates from GitHub Releases
+- **GitHub Actions CI/CD** - Automated build and release pipeline
+- **Live server status** - Real-time player count and uptime display
+- **Smart validation** - Prevents patching in wrong directory
+- **Improved UX** - Responsive async operations with proper timeout handling
+
+### v0.1.1
 - Initial C# port from Python version
 - All features from Python version implemented
 - Embedded logo support
@@ -233,10 +310,39 @@ Both versions have identical functionality. Choose based on your priorities:
 - **File size** - Larger than Python version due to embedded .NET runtime
 - **Windows only** - No Mac/Linux support (use Python version for cross-platform)
 
+## Technical Details
+
+### API Endpoints
+
+- **Manifest**: `http://fileserver.swgsurvivors.com/swgs/updates/manifest.json`
+- **Server Status**: `http://fileserver.swgsurvivors.com/status/server_status.php`
+- **GitHub Releases**: `https://api.github.com/repos/SWG-Survivors/launcher/releases/latest`
+
+### Technologies
+
+- **.NET 9.0** - Modern .NET runtime with Windows Forms
+- **HttpClient** - Async HTTP operations with timeout handling
+- **SHA256** - Cryptographic hash verification
+- **JSON** - Manifest and API response parsing
+- **Batch Scripts** - Self-replacement mechanism
+
+### Security Features
+
+- Hash verification for all downloaded files
+- HTTPS for GitHub API (HTTP for internal endpoints with hash verification)
+- No elevation required (runs as standard user)
+- Temporary files cleaned up after updates
+
 ## Support & Issues
 
 For issues or questions:
 1. Check the Activity Log in the patcher for error details
 2. Verify manifest is accessible: http://fileserver.swgsurvivors.com/swgs/updates/manifest.json
-3. Ensure game is closed before patching
-4. Try running as Administrator if permission errors occur
+3. Check server status: http://fileserver.swgsurvivors.com/status/server_status.php
+4. Ensure game is closed before patching
+5. Try running as Administrator if permission errors occur
+6. Report issues: https://github.com/SWG-Survivors/launcher/issues
+
+## License
+
+ISC License - See [LICENSE](LICENSE) file for details.
