@@ -65,7 +65,7 @@ namespace SWGSurvivors_Patcher
             var versionString = version != null ? $"v{version.Major}.{version.Minor}.{version.Build}" : "";
 
             this.Text = $"SWGSurvivors Delta Patcher {versionString}";
-            this.Size = new Size(750, 600);
+            this.Size = new Size(750, 625);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -236,6 +236,18 @@ namespace SWGSurvivors_Patcher
             this.Controls.Add(playerPeakLabel);
 
             yPos += 40;
+
+            // Status Label
+            statusLabel = new Label
+            {
+                Text = "Ready",
+                Font = new Font("Arial", 10, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(20, yPos),
+                ForeColor = Color.Blue
+            };
+            this.Controls.Add(statusLabel);
+            yPos += 25;
 
             // Overall Progress Label
             overallProgressLabel = new Label
