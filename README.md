@@ -147,7 +147,7 @@ Browser may show insecure/unsafe download warning (click "Keep" / "Download anyw
 
 Windows may show SmartScreen security warnings or AV false positives (click "More info" → "Run anyway" or exclude from AV scan)
 
-This is normal for unsigned executables, the code is available to review or build locally and use is optional and for convenience until a full launcher is built. We are also actively pursuing options relating to code signing.
+This is normal for unsigned executables. The code is open source and available for review, or you can build it locally. We are actively pursuing free code signing through SignPath Foundation (see [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md)).
 
 ## Testing Before Distribution
 
@@ -183,6 +183,8 @@ launcher/
 ├── build.bat                         # Build script
 ├── logo.png                          # Embedded logo
 ├── swgs.ico                          # Application icon
+├── CODE_SIGNING_POLICY.md            # Code signing policy and team roles
+├── PRIVACY.md                        # Privacy policy
 ├── README.md                         # This file
 ├── .gitignore                        # Git ignore rules
 └── publish/                          # Build output (git ignored)
@@ -209,15 +211,23 @@ dotnet run
 2. Rebuild: `npm run rebuild`
 3. Icon appears in taskbar and file explorer
 
-## Code Signing (Optional but Recommended)
+## Code Signing
 
-For even better AV detection and user trust, sign the executable:
+The SWGSurvivors launcher is currently unsigned but we are pursuing free code signing through the [SignPath Foundation](https://signpath.org) program for open source projects.
 
-```bash
-signtool sign /f certificate.pfx /p password /t http://timestamp.digicert.com publish\SWGSurvivors-Patcher.exe
-```
+**Current Status**: Application in progress
 
-Code signing certificates cost $100-400/year but eliminate almost all antivirus warnings.
+**Benefits of code signing:**
+- Eliminates most antivirus false positives
+- Removes Windows SmartScreen warnings
+- Provides authenticity verification for users
+- Ensures executable integrity
+
+For details on our code signing policy and privacy practices:
+- [Code Signing Policy](CODE_SIGNING_POLICY.md)
+- [Privacy Policy](PRIVACY.md)
+
+Until code signing is implemented, users may see browser download warnings and Windows SmartScreen alerts. This is normal for unsigned executables. The code is open source and available for review.
 
 ## Troubleshooting
 
