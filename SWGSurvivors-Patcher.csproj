@@ -7,8 +7,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <ApplicationIcon>swgs.ico</ApplicationIcon>
-    <AssemblyName>SWGSurvivors-Launcher</AssemblyName>
-    <Version>0.2.4</Version>
+    <!-- TODO: Change to SWGSurvivors-Launcher after migration period (matches LAUNCHER_ASSET_NAME in GitHubUpdateService.cs) -->
+    <AssemblyName>SWGSurvivors-Patcher</AssemblyName>
+    <Version>0.2.5</Version>
     <!-- FileVersion and AssemblyVersion will auto-generate -->
     <Authors>Quandru</Authors>
     <Company>SWGSurvivors</Company>
